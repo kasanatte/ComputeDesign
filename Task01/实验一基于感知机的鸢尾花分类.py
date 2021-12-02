@@ -59,15 +59,19 @@ plt.pause(3)
 
 
 # 使用花瓣数据来划分鸢尾花类型效果更好。
-X=np.c_[np.ones(100),iris.data[:100,2:4]]
+# data为 山 + 维吉尼亚
+data = np.vstack((iris.data[:50, 2:4], iris.data[100:150, 2:4]))
+X=np.c_[np.ones(100), data]
 # 得到真值T，从数据集中得到真值
-T=iris.target[:100].reshape(100,1)
+T=np.hstack((iris.target[:50],iris.target[100:150])).reshape(100,1)
 # 将T中所有不等于1的元素赋值为-1，以契合sign函数
-T[T!=1] = -1
+# 把T中的0变-1，2变1了
+T[T==0] = -1
+T[T==2] = 1
 # 权值初始化，3行1列，即w0 w1 w2
 W = np.array([[1],
-              [1],
-              [1]])
+              [-1],
+              [-1]])
 # 学习率设置
 lr = 0.1
 # 神经网络输出
@@ -101,15 +105,15 @@ def train():
 # # 画图函数
 def draw():
     plt.clf()
-    plt.xlim(0, 6)  # x轴上的最小值和最大值
-    plt.ylim(0, 2)  # y轴上的最小值和最大值
+    plt.xlim(0, 7)  # x轴上的最小值和最大值
+    plt.ylim(0, 3)  # y轴上的最小值和最大值
     plt.title(u'Perceptron感知器 epoch:%d\n W0:%f W1:%f W2:%f' % (i+1, W[0], W[1], W[2]), fontsize=15)
        
     plt.xlabel('petal length 花瓣长度', fontsize=13)
     plt.ylabel('petal width 花瓣宽度', fontsize=13)
     plt.plot(X[:50, 1], X[:50, 2], '^', color='red', label='Setosa山鸢尾')
     # 用黄色的点来画出负样本 ？
-    plt.plot(X[50:100, 1], X[50:100, 2], 's', color='blue', label='Versicolour变色鸢尾')
+    plt.plot(X[50:100, 1], X[50:100, 2], 's', color='orange', label='Virginica维吉尼亚鸢尾')
     plt.plot(2.5, 1, '+', color='black', label='待预测点')
 
     # k和d是啥？
@@ -125,8 +129,8 @@ def draw():
     from matplotlib.colors import ListedColormap #绘制决策面两边的颜色，不要求掌握
     # 生成x,y的数据
     n = 256
-    xx = np.linspace(0, 6, n)
-    yy = np.linspace(0, 2, n)
+    xx = np.linspace(0, 7, n)
+    yy = np.linspace(0, 3, n)
     # 把x,y数据生成mesh网格状的数据，因为等高线的显示是在网格的基础上添加上高度值
     XX, YY = np.meshgrid(xx, yy)
     # 填充等高线
@@ -147,7 +151,8 @@ for i in range(1000):
     draw()       # 画出更新一次权值后的图像
     Y = np.sign(np.dot(X, W))
     # .all()表示Y中的所有值跟T中所有值都对应相等，结果才为真
-    if(Y == T).all(): 
+    if(Y == T).all():
+        print("epoch:"+str(i+1))
         print('Finished')
         # 跳出循环
         break
