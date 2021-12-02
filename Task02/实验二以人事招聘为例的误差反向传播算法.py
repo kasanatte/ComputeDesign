@@ -1,21 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
-# 输入数据1行2列，这里只有张三的数据
-# 现在变成张三和李四
-X = np.array([[1, 0.1],
-              [0.1, 1.0]])
-# X = np.array([[1,0.1],
-#               [0.1,1],
-#               [0.1,0.1],
-#               [1,1]])
-# 标签，张三的真值：一定录用。李四：不录用
+# 输入数据
+X = np.array([[1,0.1],
+              [0.1,1],
+              [0.1,0.1],
+              [1,1]])
+# 标签
 T = np.array([[1],
-              [0]])
-# T = np.array([[1],
-#               [0],
-#               [0],
-#               [1]])
+              [0],
+              [0],
+              [1]])
 
 # 定义一个2隐层的神经网络：2-2-2-1
 # 两个特征
@@ -46,7 +42,7 @@ epochs = 10000
 # 每训练1000次计算一次loss值  # 定义测试周期数
 report = 1000
 # 将所有样本分组，每组大小为
-batch_size = 1
+batch_size = 2
 
 # 定义sigmoid函数
 def sigmoid(x):
@@ -114,12 +110,19 @@ batch_T = []
 max_batch = X.shape[0] // batch_size
 # 训练模型
 for idx_epoch in range(epochs):
+
+    indices = list(range(X.shape[0]))
+    random.shuffle(indices)
     
     for idx_batch in range(max_batch):
         # 更新权值
-        batch_X = X[idx_batch*batch_size:(idx_batch+1)*batch_size, :]
-        batch_T = T[idx_batch*batch_size:(idx_batch+1)*batch_size, :]
+        # 选取批量样本，之前是按顺序取batch_size个。
+        batch_X = X[indices[idx_batch*batch_size:(idx_batch+1)*batch_size], :]
+        batch_T = T[indices[idx_batch*batch_size:(idx_batch+1)*batch_size], :]
+        print(indices[idx_batch*batch_size:(idx_batch+1)*batch_size])
+        print("---")
         update()
+
     # 每训练5000次计算一次loss值
     if idx_epoch % report == 0:
         # 隐藏层1输出
