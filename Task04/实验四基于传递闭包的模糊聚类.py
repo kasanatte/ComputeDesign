@@ -24,6 +24,8 @@ def FuzzySimilarMatrix(a):
         for j in range(c.shape[0]):  # 遍历c的行
             mmax.extend([np.fmax(a[i, :], a[j, :])])  # 取i和和j行的最大值,即求i行和j行的并
             mmin.extend([np.fmin(a[i, :], a[j, :])])  # 取i和和j行的最大值,即求i行和j行的交
+    # print("mmaxi:" + str(len(mmax)))
+    # mmax.len = 16
     for i in range(len(mmax)):
         mmax[i] = np.sum(mmax[i])  # 求并的和
         mmin[i] = np.sum(mmin[i])  # 求交的和
@@ -32,6 +34,29 @@ def FuzzySimilarMatrix(a):
     for i in range(c.shape[0]):  # 遍历c的行
         for j in range(c.shape[1]):  # 遍历c的列
             c[i, j] = mmin[i, j]/mmax[i, j]  # 赋值相似度
+    return c
+
+def MeanMinMatrix(a):
+    """
+        用算术平均最小法构造得到模糊相似矩阵
+    """
+    a = MaxNormalization(a)  # 用标准化后的数据
+    c = np.zeros((a.shape[0], a.shape[0]), dtype=float)
+    mmean = []
+    mmin = []
+    for i in range(c.shape[0]):  # 遍历c的行
+        for j in range(c.shape[0]):  # 遍历c的行
+            mmean.extend([np.fmin(a[i, :], a[j, :]) + np.fmax(a[i, :], a[j, :])])  # 取i和和j行的两值之和
+            mmin.extend([np.fmin(a[i, :], a[j, :])])  # 取i和和j行的最大值,即求i行和j行的交
+    print("mmeani:" + str(len(mmean)))
+    for i in range(len(mmean)):
+        mmean[i] = np.sum(mmean[i])  # 求并的和
+        mmin[i] = np.sum(mmin[i])  # 求交的和
+    mmean = np.array(mmean).reshape(c.shape[0], c.shape[1])  # 变换为与c同型的矩阵
+    mmin = np.array(mmin).reshape(c.shape[0], c.shape[1])  # 变换为与c同型的矩阵
+    for i in range(c.shape[0]):  # 遍历c的行
+        for j in range(c.shape[1]):  # 遍历c的列
+            c[i, j] = mmin[i, j] / (0.5*mmean[i, j])  # 赋值相似度
     return c
 
 def MatrixComposition(a, b):
@@ -68,7 +93,11 @@ def CutSet(a):
     水平截集
     """
     a = TransitiveClosure(a)  # 用传递闭包
-
+    # print("---")
+    # print(a)
+    # print("---")
+    # print(np.unique(a))
+    # print(np.sort(np.unique(a).reshape(-1)))
     return np.sort(np.unique(a).reshape(-1))[::-1]
 
 def get_classes(temp_pairs):
@@ -112,6 +141,7 @@ def main():
     print("特性指标矩阵\n", input)
     print("\n采用最大值规格化法将数据规格化为\n", MaxNormalization(input))
     print("\n用最大最小法构造得到模糊相似矩阵\n", FuzzySimilarMatrix(input))
+    # print("\n用算术平均最小法构造得到模糊相似矩阵\n", MeanMinMatrix(input))
     print("\n平方法合成传递闭包\n", TransitiveClosure(input))
     print("\n水平截集为\n", CutSet(input))
     print("\n模糊聚类结果\n", Result(input))
