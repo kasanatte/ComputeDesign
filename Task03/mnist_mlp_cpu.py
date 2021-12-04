@@ -148,14 +148,14 @@ class MNIST_MLP(object):
 
 
 if __name__ == '__main__':
-    h1, h2, e = 32, 16, 1
-    mlp = MNIST_MLP(hidden1=h1, hidden2=h2, max_epoch=e)
+    h1, h2, e = 256, 32, 20
+    mlp = MNIST_MLP(hidden1=h1, hidden2=h2, max_epoch=e, lr=0.001, batch_size=10)
     mlp.load_data()
     mlp.build_model()
     mlp.init_model()
     start_time = time.time()
-    mlp.train()
+    # mlp.train()
     print("All train time: %f"%(time.time()-start_time))
-    mlp.save_model('mlp-%d-%d-%depoch.npy' % (h1, h2, e))
+    # mlp.save_model('mlp-%d-%d-%depoch.npy' % (h1, h2, e))
     mlp.load_model('mlp-%d-%d-%depoch.npy' % (h1, h2, e))
     mlp.evaluate()
