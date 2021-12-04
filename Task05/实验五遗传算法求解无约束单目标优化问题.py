@@ -14,7 +14,6 @@ np.random.seed(0)  # 令随机数种子=0，确保每次取得相同的随机数
 # 初始化原始种群
 population = np.random.uniform(-1, 2, 10)  # 在[-1,2)上以均匀分布生成10个浮点数，做为初始种群
 
-# 这里适应度就是值越高，适应度越高
 for pop, fit in zip(population, fun(population)):
     print("x=%5.2f, fit=%.2f" % (pop, fit))
 
@@ -33,6 +32,7 @@ def encode(population, _min=-1, _max=2, scale=2**18, binary_len=18):  # populati
 
 
 chroms = encode(population)  # 染色体英文(chromosome)
+
 
 for pop, chrom, fit in zip(population, chroms, fun(population)):
     print("x=%.2f, chrom=%s, fit=%.2f" % (pop, chrom, fit))
@@ -53,19 +53,16 @@ fitness = fitness - fitness.min() + 0.000001  # 保证所有的都为正
 print(fitness)
 
 
-# 改select策略为精英选择
 def Select_Crossover(chroms, fitness, prob=0.6):  # 选择和交叉
-    elite = np.unravel_index(np.argmax(fitness), fitness.shape) # fitness最大值下标
     probs = fitness/np.sum(fitness)  # 各个个体被选择的概率
     probs_cum = np.cumsum(probs)  # 概率累加分布
 
-    each_rand = np.random.uniform(size=len(fitness)-1)  # 得到10个随机数，0到1之间
+    each_rand = np.random.uniform(size=len(fitness))  # 得到10个随机数，0到1之间
 
     # 轮盘赌，根据随机概率选择出新的基因编码
     # 对于each_rand中的每个随机数，找到被轮盘赌中的那个染色体
     newX = np.array([chroms[np.where(probs_cum > rand)[0][0]]
                     for rand in each_rand])
-    newX = np.append(newX, chroms[elite])
     # 繁殖，随机配对（概率为0.6)
     # 6这个数字怎么来的，根据遗传算法，假设有10个数，交叉概率为0.6，0和1一组，2和3一组。。。8和9一组，每组扔一个0到1之间的数字
     # 这个数字小于0.6就交叉，则平均下来应有三组进行交叉，即6个染色体要进行交叉
@@ -136,9 +133,8 @@ def DrawTwoChroms(chroms1, chroms2, fitfun):  # 画2幅图，左边是旧种群�
 # 对比一下变异前后的结果
 DrawTwoChroms(chroms, newchroms, fun)
 
-# ############### 上述代码执行了一轮，种群规模是10，下面设成了100
 # 上述代码只是执行了一轮，这里反复迭代
-np.random.seed(0)  # 
+np.random.seed(0)  #
 population = np.random.uniform(-1, 2, 100)  # 这次多找一些点
 chroms = encode(population)
 
@@ -146,7 +142,6 @@ for i in range(1000):
     fitness = fun(decode(chroms))
     fitness = fitness - fitness.min() + 0.000001  # 保证所有的都为正
     newchroms = Mutate(Select_Crossover(chroms, fitness))
-    # newchroms = Select_Crossover(chroms, fitness)
     if i % 300 == 1:
         DrawTwoChroms(chroms, newchroms, fun)
     chroms = newchroms
