@@ -101,16 +101,16 @@ class MNIST_MLP(object):
         h1 = self.relu1.forward(h1)
         h2 = self.fc2.forward(h1)
         h2 = self.relu2.forward(h2)
-        h3 = self.f3.forward(h2)
+        h3 = self.fc3.forward(h2)
         prob = self.softmax.forward(h3)
         return prob
 
     def backward(self):  # 神经网络的反向传播
         # TODO：神经网络的反向传播
         dloss = self.softmax.backward()
-        dh3 = self.fc3.forward(dloss)
-        dh2 = self.relu2.forward(dh3)
-        dh2 = self.fc2.forward(dh2)
+        dh3 = self.fc3.backward(dloss)
+        dh2 = self.relu2.backward(dh3)
+        dh2 = self.fc2.backward(dh2)
         dh1 = self.relu1.backward(dh2)
         dh1 = self.fc1.backward(dh1)
 
