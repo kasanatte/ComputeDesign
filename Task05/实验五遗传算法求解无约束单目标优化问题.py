@@ -2,48 +2,70 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def fun(x):
-    return x * np.sin(10*np.pi*x) + 2
+# def fun(population):
+#     x1 = population[:, 0]
+#     x2 = population[:, 1]
+#     return 21.5 + x1 * np.sin(4*np.pi*x1) + x2 * np.sin(20*np.pi*x2)
 
+def fun(x1, x2):
+    return 21.5 + x1 * np.sin(4*np.pi*x1) + x2 * np.sin(20*np.pi*x2)
 
 # 从-1到2，等差取100个
-Xs = np.linspace(-1, 2, 100)
+X1s = np.linspace(-2.9, 12, 50)
+X2s = np.linspace(4.2, 5.7, 50)
 
 np.random.seed(0)  # 令随机数种子=0，确保每次取得相同的随机数
 
 # 初始化原始种群
-population = np.random.uniform(-1, 2, 10)  # 在[-1,2)上以均匀分布生成10个浮点数，做为初始种群
+population_x1 = np.random.uniform(-2.9, 12, 10)  # 在[-1,2)上以均匀分布生成10个浮点数，做为初始种群
+population_x2 = np.random.uniform(4.2, 5.7, 10)
+population = np.hstack((population_x1.reshape(10, 1), population_x2.reshape(10, 1)))
+print(population)
+for pop1, pop2, fit in zip(population_x1, population_x2, fun(population_x1, population_x2)):
+    print("x1=%5.2f, x2=%5.2f, fit=%.2f" % (pop1, pop2, fit))
 
-for pop, fit in zip(population, fun(population)):
-    print("x=%5.2f, fit=%.2f" % (pop, fit))
-
-plt.plot(Xs, fun(Xs))
-plt.plot(population, fun(population), '*')
+X1s, X2s = np.meshgrid(X1s, X2s)
+ax = plt.axes(projection='3d')
+# ax.set_zlim3d(zmin=10, zmax=30)
+ax.plot_surface(X1s, X2s, fun(X1s, X2s))
+ax.plot(population_x1, population_x2, fun(population_x1, population_x2), '*')
 plt.show()
 
 
-def encode(population, _min=-1, _max=2, scale=2**18, binary_len=18):  # population必须为float类型，否则精度不能保证
+def encode(population_x1, population_x2, minX1=-2.9, maxX1=12, minX2=4.2, maxX2=5.7, scale=2**18, binary_len=18):  # population必须为float类型，否则精度不能保证
     # 标准化，使所有数据位于0和1之间,乘以scale使得数据间距拉大以便用二进制表示
-    normalized_data = (population-_min) / (_max-_min) * scale
+    normalized_data1 = (population_x1-minX1) / (maxX1-minX1) * scale
+    normalized_data2 = (population_x2-minX2) / (maxX2-minX2) * scale
     # 转成二进制编码
-    binary_data = np.array([np.binary_repr(x, width=binary_len)
-                           for x in normalized_data.astype(int)])
+    binary_data = np.array([np.binary_repr(x1, width=binary_len) + np.binary_repr(x2, width=binary_len)
+                            for x1, x2 in zip(normalized_data1.astype(int), normalized_data2.astype(int))])
+    # print(binary_data)
     return binary_data
 
 
-chroms = encode(population)  # 染色体英文(chromosome)
+chroms = encode(population_x1, population_x2)  # 染色体英文(chromosome)
 
 
-for pop, chrom, fit in zip(population, chroms, fun(population)):
-    print("x=%.2f, chrom=%s, fit=%.2f" % (pop, chrom, fit))
+for pop1, pop2, chrom, fit in zip(population_x1, population_x2, chroms, fun(population_x1, population_x2)):
+    print("x1=%.2f, x2=%.2f, chrom=%s, fit=%.2f" % (pop1, pop2, chrom, fit))
 
 
-def decode(popular_gene, _min=-1, _max=2, scale=2**18):  # 先把x从2进制转换为10进制，表示这是第几份
+def decode(popular_gene, minX1=-2.9, maxX1=12, minX2=4.2, maxX2=5.7, scale=2**18):  # 先把x从2进制转换为10进制，表示这是第几份
     # 乘以每份长度（长度/份数）,加上起点,最终将一个2进制数，转换为x轴坐标
-    return np.array([(int(x, base=2)/scale*3)+_min for x in popular_gene])
+    # 将gene分成x1,x2
+    gene1 = []
+    gene2 = []
+    for gene in popular_gene:
+        g1, g2 = gene[:18],gene[18:]
+        gene1.append(g1)
+        gene2.append(g2)
 
+    x1 = np.array([(int(x, base=2)/scale*(maxX1-minX1))+minX1 for x in gene1])
+    x2 = np.array([(int(x, base=2)/scale*(maxX2-minX2))+minX2 for x in gene2])
+    return x1, x2
 
-fitness = fun(decode(chroms))
+x1, x2 = decode(chroms)
+fitness = fun(x1, x2)
 
 for pop, chrom, dechrom, fit in zip(population, chroms, decode(chroms), fitness):
     print("x=%5.2f, chrom=%s, dechrom=%.2f, fit=%.2f" %
