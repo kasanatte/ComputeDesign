@@ -60,7 +60,7 @@ plt.pause(3)
 
 # 使用花瓣数据来划分鸢尾花类型效果更好。
 # data为 山 + 维吉尼亚
-data = np.vstack((iris.data[:50, [0, 2, 3]], iris.data[100:150, [0, 2, 3]]))
+data = np.vstack((iris.data[:50, 2:4], iris.data[100:150, 2:4]))
 X=np.c_[np.ones(100), data]
 # 得到真值T，从数据集中得到真值
 T=np.hstack((iris.target[:50],iris.target[100:150])).reshape(100,1)

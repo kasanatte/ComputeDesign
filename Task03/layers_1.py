@@ -17,8 +17,8 @@ class FullyConnectedLayer(object):
         self.input = input
         # TODO：全连接层的前向传播，计算输出结果
         # y = kx + b
-        print("input:"+str(input.shape))
-        print("weight:"+str(self.weight.shape))
+        # print("input:"+str(input.shape))
+        # print("weight:"+str(self.weight.shape))
         self.output = np.matmul(input, self.weight) + self.bias
         return self.output
     def backward(self, top_diff):  # 反向传播的计算

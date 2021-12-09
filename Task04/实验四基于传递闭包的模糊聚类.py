@@ -47,7 +47,7 @@ def MeanMinMatrix(a):
     for i in range(c.shape[0]):  # 遍历c的行
         for j in range(c.shape[0]):  # 遍历c的行
             mmean.extend([np.fmin(a[i, :], a[j, :]) + np.fmax(a[i, :], a[j, :])])  # 取i和和j行的两值之和
-            mmin.extend([np.fmin(a[i, :], a[j, :])])  # 取i和和j行的最大值,即求i行和j行的交
+            mmin.extend([np.fmin(a[i, :], a[j, :])])  # 取i和和j行的最小值,即求i行和j行的交
     print("mmeani:" + str(len(mmean)))
     for i in range(len(mmean)):
         mmean[i] = np.sum(mmean[i])  # 求并的和
@@ -140,8 +140,8 @@ def main():
 
     print("特性指标矩阵\n", input)
     print("\n采用最大值规格化法将数据规格化为\n", MaxNormalization(input))
-    print("\n用最大最小法构造得到模糊相似矩阵\n", FuzzySimilarMatrix(input))
-    # print("\n用算术平均最小法构造得到模糊相似矩阵\n", MeanMinMatrix(input))
+    # print("\n用最大最小法构造得到模糊相似矩阵\n", FuzzySimilarMatrix(input))
+    print("\n用算术平均最小法构造得到模糊相似矩阵\n", MeanMinMatrix(input))
     print("\n平方法合成传递闭包\n", TransitiveClosure(input))
     print("\n水平截集为\n", CutSet(input))
     print("\n模糊聚类结果\n", Result(input))

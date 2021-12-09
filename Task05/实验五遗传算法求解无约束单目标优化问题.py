@@ -11,8 +11,8 @@ def fun(x1, x2):
     return 21.5 + x1 * np.sin(4*np.pi*x1) + x2 * np.sin(20*np.pi*x2)
 
 # 从-1到2，等差取100个
-X1s = np.linspace(-2.9, 12, 50)
-X2s = np.linspace(4.2, 5.7, 50)
+X1s = np.linspace(-2.9, 12, 100)
+X2s = np.linspace(4.2, 5.7, 100)
 
 np.random.seed(0)  # 令随机数种子=0，确保每次取得相同的随机数
 
@@ -26,7 +26,6 @@ for pop1, pop2, fit in zip(population_x1, population_x2, fun(population_x1, popu
 
 X1s, X2s = np.meshgrid(X1s, X2s)
 ax = plt.axes(projection='3d')
-# ax.set_zlim3d(zmin=10, zmax=30)
 ax.plot_surface(X1s, X2s, fun(X1s, X2s))
 ax.plot(population_x1, population_x2, fun(population_x1, population_x2), '*')
 plt.show()
@@ -67,9 +66,9 @@ def decode(popular_gene, minX1=-2.9, maxX1=12, minX2=4.2, maxX2=5.7, scale=2**18
 x1, x2 = decode(chroms)
 fitness = fun(x1, x2)
 
-for pop, chrom, dechrom, fit in zip(population, chroms, decode(chroms), fitness):
-    print("x=%5.2f, chrom=%s, dechrom=%.2f, fit=%.2f" %
-          (pop, chrom, dechrom, fit))
+# for pop, chrom, dechrom, fit in zip(population, chroms, decode(chroms), fitness):
+#     print("x=%5.2f, chrom=%s, dechrom=%.2f, fit=%.2f" %
+#           (pop, chrom, dechrom, fit))
 
 fitness = fitness - fitness.min() + 0.000001  # 保证所有的都为正
 print(fitness)
@@ -101,25 +100,31 @@ def Select_Crossover(chroms, fitness, prob=0.6):  # 选择和交叉
 
 chroms = Select_Crossover(chroms, fitness)
 
-dechroms = decode(chroms)
-fitness = fun(dechroms)
+dechroms_x1, dechroms_x2 = decode(chroms)
+fitness = fun(dechroms_x1, dechroms_x2)
 
-for gene, dec, fit in zip(chroms, dechroms, fitness):
-    print("chrom=%s, dec=%5.2f, fit=%.2f" % (gene, dec, fit))
+# for gene, dec, fit in zip(chroms, dechroms, fitness):
+#     print("chrom=%s, dec=%5.2f, fit=%.2f" % (gene, dec, fit))
 
 # 对比一下选择和交叉之后的结果
-fig, (axs1, axs2) = plt.subplots(1, 2, figsize=(14, 5))
-axs1.plot(Xs, fun(Xs))
-axs1.plot(population, fun(population), 'o')
-axs2.plot(Xs, fun(Xs))
-axs2.plot(dechroms, fitness, '*')
+# fig, (axs1, axs2) = plt.subplots(1, 2, figsize=(14, 5))
+# axs1.plot(Xs, fun(Xs))
+# axs1.plot(population, fun(population), 'o')
+# axs2.plot(Xs, fun(Xs))
+# axs2.plot(dechroms, fitness, '*')
+# plt.show()
+
+X1s, X2s = np.meshgrid(X1s, X2s)
+ax = plt.axes(projection='3d')
+ax.plot_surface(X1s, X2s, fun(X1s, X2s))
+ax.plot(population_x1, population_x2, fun(population_x1, population_x2), 'o')
 plt.show()
 
 # 输入一个原始种群1，输出一个变异种群2  函数参数中的冒号是参数的类型建议符，告诉程序员希望传入的实参的类型。函数后面跟着的箭头是函数返回值的类型建议符，用来说明该函数返回的值是什么类型。
 
-
+# 长度由18变成36了
 def Mutate(chroms: np.array):
-    prob = 0.1  # 变异的概率
+    prob = 0.3  # 变异的概率
     clen = len(chroms[0])  # chroms[0]="111101101 000010110"    字符串的长度=18
     m = {'0': '1', '1': '0'}  # m是一个字典，包含两对：第一对0是key而1是value；第二对1是key而0是value
     newchroms = []  # 存放变异后的新种群
@@ -153,19 +158,26 @@ def DrawTwoChroms(chroms1, chroms2, fitfun):  # 画2幅图，左边是旧种群�
 
 
 # 对比一下变异前后的结果
-DrawTwoChroms(chroms, newchroms, fun)
+# DrawTwoChroms(chroms, newchroms, fun)
 
 # 上述代码只是执行了一轮，这里反复迭代
 np.random.seed(0)  #
-population = np.random.uniform(-1, 2, 100)  # 这次多找一些点
-chroms = encode(population)
+population_x1 = np.random.uniform(-2.9, 12, 100)  # 在[-1,2)上以均匀分布生成10个浮点数，做为初始种群
+population_x2 = np.random.uniform(4.2, 5.7, 100)
+population = np.hstack((population_x1.reshape(100, 1), population_x2.reshape(100, 1)))
+chroms = encode(population_x1, population_x2)
 
 for i in range(1000):
-    fitness = fun(decode(chroms))
+    x1, x2 = decode(chroms)
+    fitness = fun(x1, x2)
+    # print("fit(%d):"%(i+1) + str(np.max(fitness)))
+    print("fit(%d):"%(i+1) + str(fitness))
     fitness = fitness - fitness.min() + 0.000001  # 保证所有的都为正
     newchroms = Mutate(Select_Crossover(chroms, fitness))
-    if i % 300 == 1:
-        DrawTwoChroms(chroms, newchroms, fun)
+    # if i % 300 == 1:
+    #     DrawTwoChroms(chroms, newchroms, fun)
+
+
     chroms = newchroms
 
-DrawTwoChroms(chroms, newchroms, fun)
+# DrawTwoChroms(chroms, newchroms, fun)
