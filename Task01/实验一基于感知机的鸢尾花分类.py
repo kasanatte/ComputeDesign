@@ -1,8 +1,7 @@
 # 加载用到的库
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.datasets import load_iris #仅用于加载数据集
-
+from sklearn.datasets import load_iris  # 仅用于加载数据集
 
 # 画图时的中文支持
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
@@ -35,17 +34,16 @@ plt.plot(X[100:150, 0], X[100:150, 1], '^', color='red', label='Virginica维吉�
 plt.legend()
 
 plt.show()
-plt.pause(3) 
+plt.pause(3)
 
 # 从图中大致可以看出，萼片长度和萼片宽度与鸢尾花类型间呈现出非线性关系。
 
 
-
 plt.clf()
-plt.xlim(0, 7)#x轴上的最小值和最大值
+plt.xlim(0, 7)  # x轴上的最小值和最大值
 plt.ylim(0, 3)
 plt.title(u'iris数据集 花瓣', fontsize=15)
-X=iris.data[:,2:4]
+X = iris.data[:, 2:4]
 
 plt.xlabel('petal length 花瓣长度', fontsize=13)
 plt.ylabel('petal width 花瓣宽度', fontsize=13)
@@ -55,19 +53,18 @@ plt.plot(X[100:150, 0], X[100:150, 1], '^', color='red', label='Virginica维吉�
 plt.legend()
 
 plt.show()
-plt.pause(3) 
-
+plt.pause(3)
 
 # 使用花瓣数据来划分鸢尾花类型效果更好。
 # data为 山 + 维吉尼亚
-data = np.vstack((iris.data[:50, 2:4], iris.data[100:150, 2:4]))
-X=np.c_[np.ones(100), data]
+data = np.vstack((iris.data[:50, [0, 2, 3]], iris.data[100:150, [0, 2, 3]]))
+X = np.c_[np.ones(100), data]
 # 得到真值T，从数据集中得到真值
-T=np.hstack((iris.target[:50],iris.target[100:150])).reshape(100,1)
+T = np.hstack((iris.target[:50], iris.target[100:150])).reshape(100, 1)
 # 将T中所有不等于1的元素赋值为-1，以契合sign函数
 # 把T中的0变-1，2变1了
-T[T==0] = -1
-T[T==2] = 1
+T[T == 0] = -1
+T[T == 2] = 1
 # 权值初始化，3行1列，即w0 w1 w2
 W = np.array([[1],
               [-1],
@@ -108,8 +105,8 @@ def draw():
     plt.clf()
     plt.xlim(0, 7)  # x轴上的最小值和最大值
     plt.ylim(0, 3)  # y轴上的最小值和最大值
-    plt.title(u'Perceptron感知器 epoch:%d\n W0:%f W1:%f W2:%f' % (i+1, W[0], W[1], W[2]), fontsize=15)
-       
+    plt.title(u'Perceptron感知器 epoch:%d\n W0:%f W1:%f W2:%f' % (i + 1, W[0], W[1], W[2]), fontsize=15)
+
     plt.xlabel('petal length 花瓣长度', fontsize=13)
     plt.ylabel('petal width 花瓣宽度', fontsize=13)
     plt.plot(X[:50, 1], X[:50, 2], '^', color='red', label='Setosa山鸢尾')
@@ -127,7 +124,7 @@ def draw():
     plt.legend()
     ######################################################以下绘制决策面两边的颜色，不要求掌握
     # 生成决策面 
-    from matplotlib.colors import ListedColormap #绘制决策面两边的颜色，不要求掌握
+    from matplotlib.colors import ListedColormap  # 绘制决策面两边的颜色，不要求掌握
     # 生成x,y的数据
     n = 256
     xx = np.linspace(0, 7, n)
@@ -135,9 +132,9 @@ def draw():
     # 把x,y数据生成mesh网格状的数据，因为等高线的显示是在网格的基础上添加上高度值
     XX, YY = np.meshgrid(xx, yy)
     # 填充等高线
-    colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')  
-    cmap = ListedColormap(colors[:len(np.unique(np.sign(W[0]+W[1]*XX+W[2]*YY)))])  
-    plt.contourf(XX, YY, np.sign(W[0]+W[1]*XX+W[2]*YY),8, alpha = 0.5, cmap=cmap)
+    colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')
+    cmap = ListedColormap(colors[:len(np.unique(np.sign(W[0] + W[1] * XX + W[2] * YY)))])
+    plt.contourf(XX, YY, np.sign(W[0] + W[1] * XX + W[2] * YY), 8, alpha=0.5, cmap=cmap)
     #######################################################以上绘制决策面两边的颜色，不要求掌握
     plt.pause(0.1)
     plt.show()
@@ -145,15 +142,15 @@ def draw():
 
 # # 训练100次
 for i in range(1000):
-    if(i == 0):    # 特地画出未经训练的初始图像，以方便理解
+    if (i == 0):  # 特地画出未经训练的初始图像，以方便理解
         draw()
         plt.pause(5)  # 停留两秒，这是分类直线最初的位置，取决于W的初始值，是人为决定的超参数
-    train()      # 更新一次权值
-    draw()       # 画出更新一次权值后的图像
+    train()  # 更新一次权值
+    draw()  # 画出更新一次权值后的图像
     Y = np.sign(np.dot(X, W))
     # .all()表示Y中的所有值跟T中所有值都对应相等，结果才为真
-    if(Y == T).all():
-        print("epoch:"+str(i+1))
+    if (Y == T).all():
+        print("epoch:" + str(i + 1))
         print('Finished')
         # 跳出循环
         break

@@ -59,6 +59,12 @@ class MNIST_MLP(object):
         self.train_data = np.append(train_images, train_labels, axis=1)
         self.test_data = np.append(test_images, test_labels, axis=1)
         # self.test_data = np.concatenate((self.train_data, self.test_data), axis=0)
+        print(train_images.shape)
+        print(train_labels.shape)
+        print(test_images.shape)
+        print(train_labels.shape)
+        print(self.train_data.shape)
+        print(self.test_data.shape)
 
     def shuffle_data(self):
         print('Randomly shuffle MNIST data...')

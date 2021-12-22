@@ -81,6 +81,7 @@ def TransitiveClosure(a):
     c = a
     while True:
         m = c
+        # c = MatrixComposition(c, m)
         c = MatrixComposition(MatrixComposition(a, c), MatrixComposition(a, c))
         if (c == m).all():  # 闭包条件
             return np.around(c, decimals=2)  # 返回传递闭包,四舍五入,保留两位小数
